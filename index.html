@@ -116,8 +116,17 @@
       });
     }
 
-    function GrabSchoolIds() {
-
+    function GetUserInstallations() {
+      var school = $('#school').val();
+      msg('Retrieving Installations for school ' + school + ' ...');
+      Parse.Cloud.run('getAllFavoriteItems', { school: school }, {
+        success: function(installations) {
+          msg('Installations are: ' + installations.join());
+        },
+        error: function(error) {
+          msg('Error');
+        }
+      });
     }
   </script>
 </body>
