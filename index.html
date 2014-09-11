@@ -15,11 +15,18 @@
 
   <div id="main">
     <p id='msg'></p>
-    <button onclick='DropData()' id='dropDataBtn'>Clear Test Data</button>
-    <br/>
+
     <button onclick='CreateStubUsers()' id='creteStubUsersBtn'>Create Stub Users</button>
+    <br/>    
     <br/>
-    <button onclick='CreateStubData()' id='creteStubDataBtn'>Create Stub Data</button>
+    <button onclick='CreateStubData()'>Create Test Data</button>
+    <button onclick='DropData()' id='dropDataBtn'>Clear Test Data</button>    
+    <br/>
+    <br/>
+    <button onclick='GetUserInstallations()'>Get Installations</button> of Users favorited <input type='text' value='School 1' id='school'/>
+    <ul id='log'>
+
+    </ul>
   </div>
 
   <script type="text/javascript">
@@ -27,17 +34,29 @@
     
     var TestItem = Parse.Object.extend("TestItem");
     var User = Parse.Object.extend("User");
-    var UserFavourite = Parse.Object.extend("UserFavourite");
+    var UserFavorites = Parse.Object.extend("UserFavorites");
     var numberOfUsers = 11;
     var numberOfDataStubs = 11;
 
     function CreateStubUsers(){
+      var promises = [];
+      msg('Creating users ...')
       // create stub users
       for(var i = 1; i <numberOfUsers; i++) {
         var user = new User();
-        user.save({username: 'User'+i, installationId: i, password: 'password'+i})
-        .then(usersCreated, usersCreated);
+        promises.push(user.save({username: 'User'+i, installationId: i, password: 'password'+i}).then(function(usr) {
+          log(usr);
+        }));
       }
+      Parse.Promise.when(promises).then(function() {
+        msg('Users Are created');
+      }, function() {
+        msg('Users already exist created');
+      });
+    }
+
+    function log(text) {
+      $('<li>' + text + '</li>').prependTo('#log');
     }
 
     function msg(text) {
@@ -47,45 +66,45 @@
     function DropData(){
       // delete all objects
       var queryTestItem = new Parse.Query(TestItem);
-      var queryUserFavourite = new Parse.Query(UserFavourite);
+      var queryUserFavorites = new Parse.Query(UserFavorites);
       var queryUser = new Parse.Query(User);
       var promises = [];
+      msg('Clearing test data...');
       function drop(results) {
         results.forEach(function (result) {
           promises.push(result.destroy());
+          log('DELETED ' + (result.get('school')?  result.get('school'): 'UserFavorites object'));
         });
       }
-      queryUserFavourite.find().then(drop);
-      queryTestItem.find().then(drop);
-      queryUser.find().then(drop);
+      promises.push(queryUserFavorites.find().then(drop));
+      promises.push(queryTestItem.find().then(drop));
+      //queryUser.find().then(drop);
 
       Parse.Promise.when(promises).then(function() {
         msg('Test data cleared');
       });
     }
 
-    function usersCreated() {
-      $('#creteStubUsersBtn').attr('disabled','disabled');
-      $('#creteStubDataBtn').removeAttr('disabled');
-      msg('Users Are created');
-    }
-
     
     function CreateStubData() {
       // create stub data
+
+      msg('Populating database with test data...');
       var promises = [];
       for(var i = 1; i < numberOfDataStubs; i++) {
         var testItem = new TestItem();
         var p = testItem.save({school: "School "+ i,}).then(function(item) {
+          log('CREATED ' + item.get('className') + ' ' + item.get('school'));
           var key = item.get('school').substring(7);
-          console.log(key);
           var queryUser = new Parse.Query(User);
           queryUser.equalTo('username', 'User' + key);
           var pp = queryUser.find().then(function(users) {
             var user = users[0];
             for(var j = 1; j < 4; j++) {
-              var userFavourite = new UserFavourite();
-              promises.push(userFavourite.save({testItem:item, user:user}));
+              var userFavorites = new UserFavorites();
+              promises.push(userFavorites.save({testItem:item, user:user}).then(function(uf) {
+                log('CREATED userFavorites for ' + user.get('username') + ' and ' + item.get('school'));
+              }));
             }
           });
           promises.push(pp);
@@ -95,6 +114,10 @@
       Parse.Promise.when(promises).then(function() {
         msg('Test data is created');
       });
+    }
+
+    function GrabSchoolIds() {
+
     }
   </script>
 </body>
