@@ -63,18 +63,21 @@ function CreateStubData() {
     var testItem = new TestItem();
     var p = testItem.save({school: "School "+ i,}).then(function(item) {
       log('CREATED ' + item.get('className') + ' ' + item.get('school'));
-      var key = item.get('school').substring(7);
-      var queryUser = new Parse.Query(User);
-      queryUser.equalTo('username', 'User' + key);
-      var pp = queryUser.find().then(function(users) {
-        var user = users[0];
-        for(var j = 1; j < 4; j++) {
+      for(var j = numberOfDataStubs; j < (numberOfDataStubs + 3); j++) {
+        var queryUser = new Parse.Query(User);
+        var key = item.get('school').substring(7);
+        var num = j - key;
+        num = num >= numberOfDataStubs? 1: num;
+        queryUser.equalTo('username', 'User' + (j - key));
+        var pp = queryUser.find().then(function(users) {
+          var user = users[0];
           var userFavorites = new UserFavorites();
           promises.push(userFavorites.save({testItem:item, user:user}).then(function(uf) {
             log('CREATED userFavorites for ' + user.get('username') + ' and ' + item.get('school'));
           }));
-        }
-      });
+        });
+
+      }
       promises.push(pp);
     });
     promises.push(p);
@@ -91,8 +94,8 @@ function GetUserInstallations() {
     success: function(installations) {
       msg('Installations are: ' + installations.join());
     },
-    error: function(error) {
-      msg('Error: ' + error);
+    error: function(result) {
+      msg('Error: ' + result.error);
     }
   });
 }
