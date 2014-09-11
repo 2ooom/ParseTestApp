@@ -1,22 +1,23 @@
 
 Parse.Cloud.define("getAllFavoriteItems", function(request, response) {
-	var TestItems = Parse.Object.extend("TestItems");
-	var UserFavorites = Parse.Object.extend("UserFavorites");
-	
-	var testItemsQuery = new Parse.Query(TestItems);
+
+	var TestItem = Parse.Object.extend("TestItem");
+	var UserFavorites = Parse.Object.extend("UserFavorites");	
+	var testItemsQuery = new Parse.Query(TestItem);
 	var userFavoritesQuery = new Parse.Query(UserFavorites);
 
-	testItemsQuery.equalTo('school', request.school);
+	testItemsQuery.equalTo('school', request.params.school);
 
-	userFavoritesQuery.include('testItem'); //This makes sure to pull all of the favorite item data instead of just the pointer object
+	userFavoritesQuery.include('testItem'); 
+	userFavoritesQuery.include('user'); 
 	userFavoritesQuery.matchesQuery('testItem', testItemsQuery); //This will run this second query against the TestItems
-	userFavoritesQuery.ascending('userId'); //group the user id's together in your array
-
 	userFavoritesQuery.find().then(function(results) {
-		var installations = [234, 324];
+		var installations = [];
+		for(var i =0 ; i<results.length; i++ ){
+		  installations.push(results[i].get('user').get('installationId'));
+		}
 		response.success(installations);
-	},
-	function(error) {
+	}, function(error) {
 		response.error();
 	});
 });

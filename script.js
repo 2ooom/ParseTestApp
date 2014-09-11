@@ -92,25 +92,7 @@ function GetUserInstallations() {
       msg('Installations are: ' + installations.join());
     },
     error: function(error) {
-      msg('Error');
+      msg('Error: ' + error);
     }
   });
-
-  
-  var testItemsQuery = new Parse.Query(TestItem);
-  var userFavoritesQuery = new Parse.Query(UserFavorites);
-
-  testItemsQuery.equalTo('school', request.school);
-
-  userFavoritesQuery.include('testItem'); 
-  userFavoritesQuery.include('user'); 
-  userFavoritesQuery.matchesQuery('testItem', testItemsQuery); //This will run this second query against the TestItems
-
-  userFavoritesQuery.find().then(function(results) {
-    var installations = [];
-    for(var i =0 ; i<results.length; i++ ){
-      installations.push(results[i].get('user').get('installationId'));
-    }
-    response.success(installations);
-  },
 }
