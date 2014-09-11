@@ -61,7 +61,7 @@ function CreateStubData() {
   var promises = [];
   for(var i = 1; i < numberOfDataStubs; i++) {
     var testItem = new TestItem();
-    var p = testItem.save({school: "School "+ i,}).then(function(item) {
+    var p = testItem.save({school: "School "+ i,meal: 'meal ' + i}).then(function(item) {
       log('CREATED ' + item.get('className') + ' ' + item.get('school'));
       for(var j = numberOfDataStubs; j < (numberOfDataStubs + 3); j++) {
         var queryUser = new Parse.Query(User);
@@ -72,7 +72,8 @@ function CreateStubData() {
         var pp = queryUser.find().then(function(users) {
           var user = users[0];
           var userFavorites = new UserFavorites();
-          promises.push(userFavorites.save({testItem:item, user:user}).then(function(uf) {
+          var itemIndex = user.get('username').substring(4);
+          promises.push(userFavorites.save({testItem:item, user:user, item: 'item ' + itemIndex}).then(function(uf) {
             log('CREATED userFavorites for ' + user.get('username') + ' and ' + item.get('school'));
           }));
         });
@@ -91,8 +92,8 @@ function GetUserInstallations() {
   var school = $('#school').val();
   msg('Retrieving Installations for school ' + school + ' ...');
   Parse.Cloud.run('getAllFavoriteItems', { school: school }, {
-    success: function(installations) {
-      msg('Installations are: ' + installations.join());
+    success: function(result) {
+      msg('alerts are: ' + JSON.stringify(result));
     },
     error: function(result) {
       msg('Error: ' + result.error);
