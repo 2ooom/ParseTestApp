@@ -96,7 +96,7 @@ function GetUserAlerts () {
   msg('Retrieving Installations for school ' + school + ' ...');
   Parse.Cloud.run('getAllFavoriteItems', { school: school }, {
     success: function(result) {
-      msg('alerts are: ' + JSON.stringify(result));
+      msg('alerts are: <br/><pre style="font-size:10px;">' + JSON.stringify(result, undefined, 2) + '</pre>');
     },
     error: function(result) {
       msg('Error: ' + result.error);
