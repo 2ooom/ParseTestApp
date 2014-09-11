@@ -5,6 +5,7 @@ var User = Parse.Object.extend("User");
 var UserFavorites = Parse.Object.extend("UserFavorites");
 var numberOfUsers = 11;
 var numberOfDataStubs = 11;
+var indexPattern = /\s\d+$/ig;
 
 function CreateStubUsers(){
   var promises = [];
@@ -41,12 +42,11 @@ function DropData(){
   function drop(results) {
     results.forEach(function (result) {
       promises.push(result.destroy());
-      log('DELETED ' + (result.get('school')?  result.get('school'): 'UserFavorites object'));
+      log('DELETED ' + result.className);
     });
   }
   promises.push(queryUserFavorites.find().then(drop));
   promises.push(queryTestItem.find().then(drop));
-  //queryUser.find().then(drop);
 
   Parse.Promise.when(promises).then(function() {
     msg('Test data cleared');
@@ -54,27 +54,30 @@ function DropData(){
 }
 
 
-function CreateStubData() {
+function CreateStubData(schoolPrefix, mealPrefix, itemPrefix) {
   // create stub data
-
   msg('Populating database with test data...');
   var promises = [];
   for(var i = 1; i < numberOfDataStubs; i++) {
     var testItem = new TestItem();
-    var p = testItem.save({school: "School "+ i,meal: 'meal ' + i}).then(function(item) {
-      log('CREATED ' + item.get('className') + ' ' + item.get('school'));
-      for(var j = numberOfDataStubs; j < (numberOfDataStubs + 3); j++) {
+    var p = testItem.save({
+      school: schoolPrefix + ' ' + i,
+      meal: mealPrefix  + ' ' + i
+    }).then(function(item) {
+      var school = item.get('school');
+      var itemNumber = Number(((/\s\d+$/ig).exec(school))[0].trim());
+      log('CREATED ' + item.className + ' ' + school);
+      for(var j = 0; j < 3; j++) {
         var queryUser = new Parse.Query(User);
-        var key = item.get('school').substring(7);
-        var num = j - key;
-        num = num >= numberOfDataStubs? 1: num;
-        queryUser.equalTo('username', 'User' + (j - key));
+        var key = itemNumber + j;
+        key = key >= numberOfDataStubs? key - numberOfDataStubs + 1: key;
+        queryUser.equalTo('username', 'User' + key);
         var pp = queryUser.find().then(function(users) {
           var user = users[0];
           var userFavorites = new UserFavorites();
           var itemIndex = user.get('username').substring(4);
-          promises.push(userFavorites.save({testItem:item, user:user, item: 'item ' + itemIndex}).then(function(uf) {
-            log('CREATED userFavorites for ' + user.get('username') + ' and ' + item.get('school'));
+          promises.push(userFavorites.save({testItem:item, user:user, item: itemPrefix + ' ' + itemIndex}).then(function(uf) {
+            log('CREATED ' + uf.className + ' ["' + user.get('username') + '", "' + item.get('school')+ '"]');
           }));
         });
 
@@ -88,7 +91,7 @@ function CreateStubData() {
   });
 }
 
-function GetUserInstallations() {
+function GetUserAlerts () {
   var school = $('#school').val();
   msg('Retrieving Installations for school ' + school + ' ...');
   Parse.Cloud.run('getAllFavoriteItems', { school: school }, {

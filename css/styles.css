@@ -38,3 +38,9 @@ body {
     color: green;
     line-height: 13px;
 }
+#msg {
+    color:green;
+}
+#log {
+    font-size: 10px;
+}

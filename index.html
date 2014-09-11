@@ -16,17 +16,28 @@
   <div id="main">
     <p id='msg'></p>
 
-    <button onclick='GetUserInstallations()'>Get Installations</button> of Users favorited <input type='text' value='School 5' id='school'/>
+    <button onclick='GetUserAlerts()'>Get Alerts</button> for Users who favorited<br/>
+    <code>TestItems.school = </code><input type='text' value='School 5' id='school'/> 
+    <br/>
+    <br/>
+    <h3>Test Data</h3>
+    <code><strong>TestItem</strong> = {<br/>
+        school : '<input value='School' id='schoolPrefix'/>'<br/>
+        meal : '<input value='Meal' id='mealPrefix'/>'<br/>
+    }<br/>
+    <strong>UserFavorite</strong> = {<br/>
+        item : '<input value='Item' id='itemPrefix'/>'<br/>
+    }</code><br/><br/>
+    <button onclick='CreateStubData($("#schoolPrefix").val(), $("#mealPrefix").val(), $("#itemPrefix").val())'>Create Test Data</button>
+    <br/>
+    <br/>
+    <button onclick='DropData()' id='dropDataBtn'>Clear Test Data</button>    
     <br/>
     <br/>
     <button onclick='CreateStubUsers()' id='creteStubUsersBtn'>Create Stub Users</button>
     <br/>    
     <br/>
-    <button onclick='CreateStubData()'>Create Test Data</button>
-    <button onclick='DropData()' id='dropDataBtn'>Clear Test Data</button>    
-    <br/>
-    <br/>
-
+    <h3>Log</h3>
     <ul id='log'>
 
     </ul>
