@@ -6,8 +6,7 @@ Parse.com API test app with JS client
 Live demo [here](coubantilogin.azurewebsites.net)
 
 
-
-The packend schema is:
+The backend schema is:
 
 
 ###User Class 
