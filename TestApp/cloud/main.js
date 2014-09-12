@@ -45,7 +45,7 @@
 					alerts: groupedAlerts[key],
 				});
 				// Send push notifications
-				SendPush(key, alerts.join());
+				SendPush(key, groupedAlerts[key].join());
 			}
 			response.success(alerts);
 		}, function(error) {
