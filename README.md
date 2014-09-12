@@ -19,3 +19,5 @@ The backend schema is:
 
 ###UserFavorites Class
 ![UserFavorites](http://i.stack.imgur.com/PiFho.png)
+
+TODO: Add client to test push-notification
